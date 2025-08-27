@@ -1,7 +1,8 @@
-import sqlite3
+import os, sqlite3
 from contextlib import contextmanager
 
-DB_PATH = '../../food_nutrition.db'
+# DB_PATH = '../../food_nutrition.db'
+DB_PATH = os.path.join(os.path.dirname(__file__), '../../food_nutrition.db')
 
 @contextmanager
 def get_db_connection():

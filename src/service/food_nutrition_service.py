@@ -1,5 +1,9 @@
 # 필요한 라이브러리들을 가져옵니다.
-import src.db.database as DB
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
+# import src.db.database as DB
+from src.db import database as DB
 import os
 from dotenv import load_dotenv
 from openai import OpenAI
