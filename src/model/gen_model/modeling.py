@@ -56,7 +56,7 @@ for layer in base_model.layers:
 model.compile(optimizer=Adam(learning_rate=0.0001), loss="binary_crossentropy", metrics=['accuracy'])
 
 import datetime, json
-current_time = datetime.datetime.now()
+current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 indices_json_file = f"indices-{current_time}.json"
 
 with open(indices_json_file, "w", encoding='utf-8') as f:

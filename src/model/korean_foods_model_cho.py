@@ -7,11 +7,10 @@ from tensorflow.keras.layers import GlobalAveragePooling2D
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
 
-train_dir = 'E:\\AIWork\\Data\\테스트\\train'
-valid_dir = 'E:\\AIWork\\Data\\테스트\\valid'
-# rabbit_train_dir = './train/rabbit'
-# raccoon_train_dir = './train/raccoon'
-# squirrel_train_dir = './train/squirrel'
+train_dir = 'E:/AIWork/Data/테스트/train'
+valid_dir = 'E:/AIWork/Data/테스트/valid'
+
+BATCH_SIZE = 32
 
 train_datagen = ImageDataGenerator(
     rescale=1. / 255.0,
@@ -24,7 +23,7 @@ train_datagen = ImageDataGenerator(
 train_generator = train_datagen.flow_from_directory(
     train_dir,
     target_size=(224, 224),
-    batch_size=8,
+    batch_size=BATCH_SIZE,
     class_mode='categorical',
     subset='training',
     shuffle=True
@@ -33,13 +32,13 @@ train_generator = train_datagen.flow_from_directory(
 validation_generator = train_datagen.flow_from_directory(
     valid_dir,
     target_size=(224, 224),
-    batch_size=8,
+    batch_size=BATCH_SIZE,
     class_mode='categorical',
     subset='validation',
     shuffle=True
 )
 
-current_time = datetime.datetime.now()
+current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 indices_json_file = f"indices-{current_time}.json"
 
 with open(indices_json_file, "w", encoding='utf-8') as f:
@@ -68,9 +67,8 @@ modelCheckpoint = ModelCheckpoint(f"./models/cho_korean_food_classifier-{current
 model.fit(train_generator,
           epochs=100,
           validation_data=validation_generator,
-          steps_per_epoch=train_generator.samples // 8,  # // train_generator.batch_size,
-          validation_steps=validation_generator.samples // 8,  # // validation_generator.batch_size
+          steps_per_epoch=train_generator.samples // BATCH_SIZE,  # // train_generator.batch_size,
+          validation_steps=validation_generator.samples // BATCH_SIZE,  # // validation_generator.batch_size
           callbacks=[earlyStopping, modelCheckpoint]
           )
 
-model.save(f'cho_korean_food_classifier-{current_time}.keras')
