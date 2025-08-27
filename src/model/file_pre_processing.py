@@ -94,7 +94,7 @@ def crop_image(image_path: str, coords: Tuple[int, int, int, int]) -> any:
     return img[y:y + h, x:x + w]
 
 
-def train_files_pre_process(target_dir, dest_dir, count):
+def train_files_pre_process(target_dir, dest_dir, count, is_valid=False):
     """
     대상 디렉토리의 이미지 파일들을 전처리하여 목적 디렉토리로 복사합니다.
 
@@ -110,6 +110,10 @@ def train_files_pre_process(target_dir, dest_dir, count):
     Returns:
         dict: 처리된 파일명을 키로, {'folder': 원본폴더명, 'type': 파일유형}을 값으로 하는 딕셔너리
     """
+
+    if is_valid:
+        count = int(count / 20)
+
     os.makedirs(dest_dir, exist_ok=True)
     result = {}
 
@@ -177,16 +181,26 @@ if __name__ == '__main__':
     target_dir = "E:/AIWork/Data/한국음식"
     train_dest_dir = "E:/AIWork/Data/테스트/train"
     valid_dest_dir = "E:/AIWork/Data/테스트/valid"
-    count = 130
+    count = 100
 
-    for dest_dir in [train_dest_dir, valid_dest_dir]:
-        result = train_files_pre_process(target_dir, dest_dir, count)
-        # Save process_result to JSON file
-        result_file = os.path.join(dest_dir, 'result.json')
-        with open(result_file, 'w', encoding='utf-8') as f:
-            json.dump(dest_dir, f, ensure_ascii=False, indent=2)
+    # for dest_dir in [train_dest_dir, valid_dest_dir]:
+    #     result = train_files_pre_process(target_dir, dest_dir, count)
+    #     # Save process_result to JSON file
+    #     result_file = os.path.join(dest_dir, 'result.json')
+    #     with open(result_file, 'w', encoding='utf-8') as f:
+    #         json.dump(dest_dir, f, ensure_ascii=False, indent=2)
 
+    result = train_files_pre_process(target_dir, train_dest_dir, count)
+    # Save process_result to JSON file
+    result_file = os.path.join(train_dest_dir, 'result.json')
+    with open(result_file, 'w', encoding='utf-8') as f:
+        json.dump(train_dest_dir, f, ensure_ascii=False, indent=2)
 
-    print(f"파일 생성 완료: {dest_dir}")
+    result_valid = train_files_pre_process(target_dir, valid_dest_dir, count, is_valid=True)
+    # Save process_result to JSON file
+    result_valid_file = os.path.join(valid_dest_dir, 'result.json')
+    with open(result_valid_file, 'w', encoding='utf-8') as f:
+        json.dump(valid_dest_dir, f, ensure_ascii=False, indent=2)
+
 
     print("종료")
