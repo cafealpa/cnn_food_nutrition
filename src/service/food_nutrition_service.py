@@ -156,14 +156,14 @@ def ask_llm_for_ui(food_name: str):
     reasons = []
     if reason_match:
         reason_lines = reason_match.group(1).strip().split("\n")
-        reasons = [line.lstrip("-• ").strip() for line in reason_lines if line.strip()]
+        reasons = [line.lstrip("* ").strip() for line in reason_lines if line.strip()]
 
     # 4) 개선 팁
     tips_match = re.search(r"3\)\s*개선\s*팁[:\s]*([\s\S]*)", response_text)
     tips = []
     if tips_match:
         tip_lines = tips_match.group(1).strip().split("\n")
-        tips = [line.lstrip("-• ").strip() for line in tip_lines if line.strip()]
+        tips = [line.lstrip("* ").strip() for line in tip_lines if line.strip()]
 
 
     return {
