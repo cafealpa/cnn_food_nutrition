@@ -8,3 +8,5 @@ langchain
 langchain-openai
 pillow
 st-star-rating
+streamlit
+scipy
