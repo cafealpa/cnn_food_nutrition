@@ -116,7 +116,34 @@ def ask_llm(food_name):
     response = agent_executor.invoke({"input": input_prompt})
     return response["output"]
 
+
+def ask_llm_for_ui(food_name):
+    """
+    LLM 결과를 구조화하여 점수와 영양소 정보를 반환
+    """
+    response_text = ask_llm(food_name)
+    
+    # 예시: '건강 점수: 85/100'과 '열량: 250' 형식으로 parsing
+    import re
+    
+    score_match = re.search(r"건강 점수[:\s]+(\d+)", response_text)
+    score = int(score_match.group(1)) if score_match else 0
+    
+    # DB에서 직접 영양소 조회
+    food_data = get_food_nutrition_info([food_name])
+    nutrients = {
+        "열량(kcal)": food_data.get("energy_kcal", 0) if food_data else 0,
+        "탄수화물(g)": food_data.get("carbohydrates_g", 0) if food_data else 0,
+        "단백질(g)": food_data.get("protein_g", 0) if food_data else 0,
+        "지방(g)": food_data.get("fat_g", 0) if food_data else 0,
+        "당(g)": food_data.get("sugars_g", 0) if food_data else 0,
+    }
+    
+    return score, nutrients, response_text
+
+
 # 이 스크립트가 직접 실행될 때만 아래 코드를 실행합니다. (테스트용)
 if __name__ == "__main__":
     # '김치찜'에 대한 영양 분석을 요청하고 결과를 출력합니다.
     print(ask_llm("김치찜"))
+    print(ask_llm_for_ui("김치찜"))
