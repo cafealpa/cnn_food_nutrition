@@ -1,13 +1,13 @@
 import streamlit as st
 from service.img import get_image_from_uploader
 from service.predict import predict
-from service.food_nutrition_service import ask_llm
+from service.food_nutrition_service import ask_llm_for_ui
 from streamlit_star_rating import st_star_rating
 import pandas as pd
 
 @st.fragment
 def result_fragment():
-    if st.session_state.current_result is not None:
+    if st.session_state.current_score is not None:
         with st.container(border=True):
             img_col, summary_col = st.columns([1, 3])
             with img_col:
@@ -27,17 +27,21 @@ def result_fragment():
                         st.badge(f"{st.session_state.current_image_confidence}%", icon="💯", color=badge_color, width="content")
                 # 점수
                 with st.container(border=False, gap=None):
-                    st_star_rating("", read_only=True, maxValue=5, defaultValue=3, key="rating_widget")
+                    star_value = int(float(st.session_state.current_score / 100) * 5)
+                    print(star_value)
+                    st_star_rating("", read_only=True, maxValue=5, defaultValue=star_value, key="rating_widget")
                 # 영양 성분
                 with st.container(border=False, gap=None):
+                    nuts = st.session_state.current_nutrients
+                    print(nuts)
                     st.dataframe(
                         pd.DataFrame(
                             {
-                                "칼로리(kCal)": [1],
-                                "탄수화물(g)": [10],
-                                "단백질(g)": [10],
-                                "지방(g)": [10],
-                                "당(g)": [10],
+                                "칼로리(kCal)": [nuts["열량(kcal)"] if nuts["열량(kcal)"] != None else 0 ],
+                                "탄수화물(g)": [nuts["탄수화물(g)"] if nuts["탄수화물(g)"] != None else 0 ],
+                                "단백질(g)": [nuts["단백질(g)"] if nuts["단백질(g)"] != None else 0 ],
+                                "지방(g)": [nuts["지방(g)"] if nuts["지방(g)"] != None else 0 ],
+                                "당(g)": [nuts["당(g)"] if nuts["당(g)"] != None else 0 ],
                             }
                         ),
                         hide_index=True,
@@ -48,7 +52,15 @@ def result_fragment():
                 st.html(f"""
                         <div style="border-radius: 8px; background-color: rgba(127, 127, 127, 0.5); padding: 8px;">
                             <div class="contents">
-                                {st.session_state.current_result}
+                                <div class="score-text">
+                                    {st.session_state.score_text}
+                                </div>
+                                <div class="score-reason">
+                                    {st.session_state.reason}
+                                </div>
+                                <div class="score-tips">
+                                    {st.session_state.tips}
+                                </div>
                             </div>
                         </div>
                         """)
@@ -64,8 +76,16 @@ def main():
     # 현재 업로드된 파일명 추적
     if "current_file_name" not in st.session_state:
         st.session_state.current_file_name = None
-    if "current_result" not in st.session_state:
-        st.session_state.current_result = None
+    if "current_score" not in st.session_state:
+        st.session_state.current_score = None
+    if "current_nutrients" not in st.session_state:
+        st.session_state.current_nutrients = None
+    if "score_text" not in st.session_state:
+        st.session_state.score_text = None
+    if "reason" not in st.session_state:
+        st.session_state.reason = None
+    if "tips" not in st.session_state:
+        st.session_state.tips = None
     if "current_image" not in st.session_state:
         st.session_state.current_image = None
     if "current_image_name" not in st.session_state:
@@ -76,7 +96,11 @@ def main():
     if uploaded_file is not None:
         if st.session_state.current_file_name != uploaded_file.name:
             st.session_state.current_file_name = uploaded_file.name
-            st.session_state.current_result = None  # 결과 초기화
+            st.session_state.current_score = None
+            st.session_state.current_nutrients = None
+            st.session_state.score_text = None
+            st.session_state.reason = None
+            st.session_state.tips = None
             st.session_state.current_image = None
             st.session_state.current_image_name = None
             st.session_state.current_image_confidence = None
@@ -98,8 +122,12 @@ def main():
             st.session_state.current_image_name = pred['predict'][0]
             st.session_state.current_image_confidence = pred['confidence']
             # LLM 호출 코드
-            result = ask_llm(pred['predict'][0])
-            st.session_state.current_result = result
+            results = ask_llm_for_ui(pred['predict'][0])
+            st.session_state.current_score = results["score"]
+            st.session_state.current_nutrients = results["nutrients"]
+            st.session_state.score_text = results["analysis"]["score_text"]
+            st.session_state.reason = results["analysis"]["reason"]
+            st.session_state.tips = results["analysis"]["tips"]
 
         # 결과 컨테이너 - fragment로 독립적으로 렌더링
         result_fragment()
