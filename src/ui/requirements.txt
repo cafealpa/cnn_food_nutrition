@@ -1,0 +1,4 @@
+tensorflow
+pillow
+st-star-rating
+pandas
