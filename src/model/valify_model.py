@@ -3,11 +3,15 @@ import json
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.models import load_model
 
+BATCH_SIZE = 64
+
 # --- 설정 ---
 # 훈련 시 생성된 모델과 인덱스 파일 경로를 정확하게 지정해야 합니다.
 # 훈련 스크립트(korean_foods_model_cho.py)는 'models' 폴더 안에 모델과 json 파일을 저장합니다.
-MODEL_PATH = './models/cho_korean_food_classifier-20250827-002505.keras'
-INDICES_JSON_PATH = './indices-valid-20250827-002505.json'  # 예시: 실제 훈련된 인덱스 파일 경로로 변경
+# MODEL_PATH = './models/cho_korean_food_classifier-fine-20250827-122438-20ea.keras'
+# MODEL_PATH = './models/cho_korean_food_classifier-fine-20250827-150232.keras'
+MODEL_PATH = './models/cho_korean_food_classifier-fine-20250827-161229.keras'
+INDICES_JSON_PATH = './models/indices-fine-20250827-125904.json'  # 예시: 실제 훈련된 인덱스 파일 경로로 변경
 CHECK_DIR = 'E:\\AIWork\\Data\\테스트\\valid'  # 검증 데이터 경로
 
 # 1. 훈련 시 사용된 클래스 인덱스 불러오기
@@ -36,7 +40,7 @@ validation_datagen = ImageDataGenerator(rescale=1. / 255.0)
 validation_generator = validation_datagen.flow_from_directory(
     CHECK_DIR,
     target_size=(224, 224),
-    batch_size=8,
+    batch_size=BATCH_SIZE,
     class_mode='categorical',
     shuffle=False,
     classes=class_labels  # <<< 핵심: 훈련 시의 클래스 순서를 동일하게 적용합니다.
@@ -48,3 +52,10 @@ loss, accuracy = model.evaluate(validation_generator)
 print(f"\n평가 결과:")
 print(f"  - Loss: {loss:.4f}")
 print(f"  - Accuracy: {accuracy:.4f}")
+
+
+# MODEL_PATH = './models/cho_korean_food_classifier-fine-20250827-122438-20ea.keras'
+#평가 결과:
+# - Loss: 2.4001
+# - Accuracy: 0.3883
+#
