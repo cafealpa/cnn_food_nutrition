@@ -4,6 +4,7 @@ from service.predict import predict
 from service.food_nutrition_service import ask_llm_for_ui
 from streamlit_star_rating import st_star_rating
 import pandas as pd
+import math
 
 def arranged_text(raw_text):
     """텍스트를 정리하여 HTML에서 사용할 수 있도록 포맷팅합니다."""
@@ -28,6 +29,12 @@ def one_line_text(raw_text):
 
     return text_group
 
+def map_quarter_to_half(x: float, eps: float = 1e-9) -> float:
+    ip = math.floor(x)
+    frac = x - ip
+    if abs(frac - 0.25) < eps or abs(frac - 0.75) < eps:
+        return ip + 0.5
+    return x
 
 @st.fragment
 def result_fragment():
@@ -53,7 +60,7 @@ def result_fragment():
                 if st.session_state.image_classified_or_not == True:
                     # 점수
                     with st.container(border=False, gap=None):
-                        star_value = int(float(st.session_state.current_score / 100) * 5)
+                        star_value = map_quarter_to_half(float(st.session_state.current_score / 100) * 5.0)
                         print("scoring")
                         print(st.session_state.current_score)
                         print(star_value)
@@ -130,9 +137,11 @@ def result_fragment():
 
 
 def main():
-    st.title("🥣 AI 음식 검사")
+    st.title("🥣 AI 기반 한식 영양 분석 서비스")
     st.badge("음식 사진을 업로드해서 좋은 음식인지 나쁜 음식인지 알아보세요", color="blue")
     st.divider()
+    # st.html("<div class=""<a href='mailto:cafealpa@gmail.com'>링크걸릴 텍스트</a>")
+    # st.write("조남형(팀장) : [cafealpa@gmail.com](%s)" % "cafealpa@gmail.com")
 
     uploaded_file = st.file_uploader("아래 버튼을 눌러 사진을 업로드해주세요", type=["jpg", "jpeg", "png"], accept_multiple_files=False, label_visibility="visible", width="stretch", key="food_image_uploader")
     
@@ -183,11 +192,11 @@ def main():
             # 예측 코드
             # 첫번째는 이미지 배열, 두번째는 모델 경로, 세번째는 class_indices경로를 넣어주면 됩니다!
             pred = predict(img_array, 
-                           "model/models/cho_korean_food_classifier-fine-20250827-161229.keras",
+                           "model/models/kfood_model.keras",
                            "model/models/indices-fine-20250827-161229.json")
             
             st.session_state.current_image_confidence = pred['confidence']
-            if float(pred['confidence']) < 40.0:
+            if float(pred['confidence']) < 50.0:
                 st.session_state.image_classified_or_not = False
                 st.session_state.current_image_name = "미분류"
                 st.session_state.current_score = 1
@@ -204,10 +213,29 @@ def main():
 
         # 결과 컨테이너 - fragment로 독립적으로 렌더링
         result_fragment()
+        
+    st.markdown("------")
+    st.write("제작자 : ICT-3기 A팀")
+    st.html("""
+        <div class="team-member">
+            <div class="member-name">
+                조남형(팀장) : 
+                <a href='mailto:cafealpa@gmail.com'>이메일 보내기</a>
+            </div>
+            <div class="member-name">
+                조소현 : 
+                <a href='mailto:lablim03@gmail.com'>이메일 보내기</a>
+            </div>
+            <div class="member-name">
+                정현후 : 
+                <a href='mailto:jameshhjung@gmail.com'>이메일 보내기</a>
+            </div>
+        </div>
+    """)
 
 if __name__ == "__main__":
     st.set_page_config(
-        page_title="AI 음식 검사", 
+        page_title="AI 기반 한식 영양 분석 서비스", 
         page_icon="🥣",
         layout="wide"
     )

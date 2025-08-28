@@ -133,7 +133,6 @@ def ask_llm_for_ui(food_name: str):
         }
     }
     """
-
     response_text = ask_llm(food_name)
 
     # 1) 건강 점수
