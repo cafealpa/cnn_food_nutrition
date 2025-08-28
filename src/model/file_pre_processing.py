@@ -112,7 +112,8 @@ def train_files_pre_process(target_dir, dest_dir, count, is_valid=False):
     """
 
     if is_valid:
-        count = int(count / 20)
+        count = int(count * 0.3)
+
 
     os.makedirs(dest_dir, exist_ok=True)
     result = {}
@@ -190,11 +191,11 @@ if __name__ == '__main__':
     #     with open(result_file, 'w', encoding='utf-8') as f:
     #         json.dump(dest_dir, f, ensure_ascii=False, indent=2)
 
-    result = train_files_pre_process(target_dir, train_dest_dir, count)
-    # Save process_result to JSON file
-    result_file = os.path.join(train_dest_dir, 'result.json')
-    with open(result_file, 'w', encoding='utf-8') as f:
-        json.dump(train_dest_dir, f, ensure_ascii=False, indent=2)
+    # result = train_files_pre_process(target_dir, train_dest_dir, count)
+    # # Save process_result to JSON file
+    # result_file = os.path.join(train_dest_dir, 'result.json')
+    # with open(result_file, 'w', encoding='utf-8') as f:
+    #     json.dump(train_dest_dir, f, ensure_ascii=False, indent=2)
 
     result_valid = train_files_pre_process(target_dir, valid_dest_dir, count, is_valid=True)
     # Save process_result to JSON file
